@@ -17,6 +17,7 @@ if (! class_exists('WC_Free_Shipping_Per_Product_Method')) :
          */
 
         public $hide_other_methods = 'no';
+        public $free_shipping_override = 'no';
         public $remove_from_shipping_methods_calculations = 'no';
 
         public function __construct($instance_id = 0)
@@ -25,6 +26,7 @@ if (! class_exists('WC_Free_Shipping_Per_Product_Method')) :
             $this->instance_id = absint($instance_id);
             $this->method_title = __('Free Shipping Per Product', 'free-shipping-per-product-for-woocommerce');
             $this->title = __('Free Shipping', 'free-shipping-per-product-for-woocommerce');
+            $this->method_description = __('Free shipping per product', 'free-shipping-per-product-for-woocommerce');
 
             $this->supports  = [
                 'shipping-zones',
@@ -39,6 +41,7 @@ if (! class_exists('WC_Free_Shipping_Per_Product_Method')) :
             $this->title = $this->get_option('title');
             $this->hide_other_methods = $this->get_option('hide_other_methods');
             $this->remove_from_shipping_methods_calculations = $this->get_option('remove_from_shipping_methods_calculations');
+            $this->free_shipping_override = $this->get_option('free_shipping_override');
 
             add_action('woocommerce_update_options_shipping_'.$this->id, [$this, 'process_admin_options']);
 	        add_filter('woocommerce_package_rates', [$this, 'hide_shipping_when_free_is_available'], 10, 2);
@@ -58,6 +61,7 @@ if (! class_exists('WC_Free_Shipping_Per_Product_Method')) :
                 ],
                 'hide_other_methods' => [
                     'title'         => __('Hide other methods', 'free-shipping-per-product-for-woocommerce'),
+                    'label'         => __('Enabled', 'free-shipping-per-product-for-woocommerce'),
                     'type'          => 'checkbox',
                     'description'   => __('Hide other shipping methods if free shipping is available.', 'free-shipping-per-product-for-woocommerce'),
                     'default'       => 'yes',
@@ -65,12 +69,21 @@ if (! class_exists('WC_Free_Shipping_Per_Product_Method')) :
                  ],
                 'remove_from_shipping_methods_calculations' => [
                     'title'         => __('Exclude Free Shipping products from other shipping methods', 'free-shipping-per-product-for-woocommerce'),
+                    'label'         => __('Enabled', 'free-shipping-per-product-for-woocommerce'),
                     'type'          => 'checkbox',
                     'description'   => __('If enabled, the plugin will remove the product from other shipping methods calculations.', 'free-shipping-per-product-for-woocommerce'),
                     'default'       => 'yes',
                     'desc_tip'      => false,
                 ],
-                ];
+                'free_shipping_override' => [
+                    'title'         => __('Offer free shipping for the entire cart when it contains at least one free shipping item.', 'free-shipping-per-product-for-woocommerce'),
+                    'label'         => __('Enabled', 'free-shipping-per-product-for-woocommerce'),
+                    'type'          => 'checkbox',
+                    'description'   => __('If enabled, the plugin will show free shipping option even if the cart has non free-shipping items and at least one free-shipping item.', 'free-shipping-per-product-for-woocommerce'),
+                    'default'       => 'no',
+                    'desc_tip'      => false,
+                ],
+            ];
         }
 
         /**
@@ -80,16 +93,26 @@ if (! class_exists('WC_Free_Shipping_Per_Product_Method')) :
          */
         public function is_available($package)
         {
+            $cart_has_free_shipping_item = false;
             if (isset($package['contents'])) {
                 foreach ($package['contents'] as $item) {
                     /** @var WC_Product_Simple $product */
                     $product = $item['data'];
-                    if (! in_array($product->get_shipping_class(), [$this->shipping_class])) {
+                    if ( in_array($product->get_shipping_class(), [$this->shipping_class])) {
                         // this item doesn't have the right class. return default availability
-                        return false;
+                        $cart_has_free_shipping_item = true;
                     }
                 }
             }
+
+            if ( $this->free_shipping_override === 'yes' && $cart_has_free_shipping_item ) {
+                return true;
+            }
+
+            if ( ! $cart_has_free_shipping_item ) {
+                return false;
+            }
+
             return true;
         }
 
@@ -99,6 +122,7 @@ if (! class_exists('WC_Free_Shipping_Per_Product_Method')) :
         public function calculate_shipping($package = [])
         {
             $this->add_rate([
+                 'id' => 'free_shipping_per_product',
                 'label'     => $this->title, // Label for the rate
                 'cost'      => '0', // Amount or array of costs (per item shipping)
             ]);
@@ -179,7 +203,7 @@ if (! class_exists('WC_Free_Shipping_Per_Product_Method')) :
                                             <li>» Auto Hassle-Free Updates</li>
                                             <li>» High Priority Customer Support</li>
                                         </ul>
-                                        <a href="https://wpruby.com/plugin/woocommerce-simple-table-rates-pro/?utm_source=lite&utm_medium=widget&utm_campaign=freetopro" class="button wpruby_button" target="_blank"><span class="dashicons dashicons-star-filled"></span> Upgrade Now</a>
+                                        <a href="https://wpruby.com/plugin/woocommerce-simple-table-rates-pro/?utm_source=lite&utm_medium=widget&utm_campaign=freetopro" class="button wpruby_free_shipping_button" target="_blank"><span class="dashicons dashicons-star-filled"></span> Upgrade Now</a>
                                     </div>
                                 </div>
                             </div>
@@ -215,7 +239,7 @@ if (! class_exists('WC_Free_Shipping_Per_Product_Method')) :
                     background: #ffba00;
                     color:#ffffe0;
                 }
-                  .wpruby_button{
+                  .wpruby_free_shipping_button{
                       background-color:#4CAF50 !important;
                       border-color:#4CAF50 !important;
                       color:#ffffff !important;

@@ -3,9 +3,9 @@
  * Plugin Name:       WooCommerce Free Shipping Per Product
  * Plugin URI:        https://wpruby.com/
  * Description:       Free Shipping for certain product
- * Version:           1.2.6
+ * Version:           1.3.0
  * WC requires at least: 3.0
- * WC tested up to: 9.1
+ * WC tested up to: 9.4
  * Author:            WPRuby
  * Author URI:        https://wpruby.com
  * Text Domain:       free-shipping-per-product-for-woocommerce
@@ -41,11 +41,22 @@ class WPRuby_Free_Shipping_Product
 	 *
 	 * @return mixed
 	 */
-	public function filter_woocommerce_cart_shipping_packages($packages){
+	public function filter_woocommerce_cart_shipping_packages($packages)
+    {
 		foreach ($packages as $package_key => $package){
 			if (!( isset($package['contents']) && $this->zone_has_free_shipping_method($package) )) {
 				continue;
 			}
+
+            $shipping_method = $this->get_shipping_method_instance($package);
+
+            if ($shipping_method === false) {
+                continue;
+            }
+
+            if ( $shipping_method->free_shipping_override === 'yes') {
+                return $packages;
+            }
 
 			foreach ($package['contents'] as $item_key => $item) {
 				$product = $item['data'];
@@ -70,7 +81,7 @@ class WPRuby_Free_Shipping_Product
 		$shipping_zone =  wc_get_shipping_zone( $package );
 		$shipping_methods = $shipping_zone->get_shipping_methods(true);
 		foreach ($shipping_methods as $shipping_method){
-			if($shipping_method instanceof WC_Free_Shipping_Per_Product_Method){
+			if ($shipping_method instanceof WC_Free_Shipping_Per_Product_Method) {
 				if ($shipping_method->remove_from_shipping_methods_calculations === 'yes') {
 					return true;
 				}
@@ -78,6 +89,19 @@ class WPRuby_Free_Shipping_Product
 		}
 		return false;
 	}
+
+    private function get_shipping_method_instance( $package )
+    {
+        $shipping_zone =  wc_get_shipping_zone( $package );
+        $shipping_methods = $shipping_zone->get_shipping_methods(true);
+        foreach ($shipping_methods as $shipping_method){
+            if ($shipping_method instanceof WC_Free_Shipping_Per_Product_Method) {
+                return $shipping_method;
+            }
+        }
+
+        return false;
+    }
 
 	/**
      * @param $methods
