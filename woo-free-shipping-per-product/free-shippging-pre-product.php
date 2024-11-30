@@ -3,7 +3,7 @@
  * Plugin Name:       WooCommerce Free Shipping Per Product
  * Plugin URI:        https://wpruby.com/
  * Description:       Free Shipping for certain product
- * Version:           1.3.0
+ * Version:           1.3.1
  * WC requires at least: 3.0
  * WC tested up to: 9.4
  * Author:            WPRuby

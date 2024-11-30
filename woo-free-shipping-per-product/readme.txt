@@ -4,7 +4,7 @@ Donate link: https://wpruby.com/
 Tags: woocommerce,shipping,shipping method, woocommerce extension, free shipping
 Requires at least: 4.0
 Tested up to: 6.7
-Stable tag: 1.3.0
+Stable tag: 1.3.1
 WC requires at least: 3.0
 WC tested up to: 9.4
 Requires PHP: 5.6
@@ -71,6 +71,9 @@ The plugin acts as a regular WooCommerce shipping method. For setting up the plu
 * To make a product eligible for free shipping, you can create a shipping class and name it free-shipping then, assign the class to any product you need.
 
 == Changelog ==
+
+= 1.3.1 =
+* Fixed: detecting free-shipping class in shipping method availability.
 
 = 1.3.0 =
 * Added: Offer free shipping for the entire cart when it contains at least one free shipping item.

@@ -93,18 +93,17 @@ if (! class_exists('WC_Free_Shipping_Per_Product_Method')) :
          */
         public function is_available($package)
         {
+            $package = WC()->cart->cart_contents;
             $cart_has_free_shipping_item = false;
-            if (isset($package['contents'])) {
-                foreach ($package['contents'] as $item) {
-                    /** @var WC_Product_Simple $product */
-                    $product = $item['data'];
-                    if ( in_array($product->get_shipping_class(), [$this->shipping_class])) {
-                        // this item doesn't have the right class. return default availability
-                        $cart_has_free_shipping_item = true;
-                    }
+            foreach ($package as $item) {
+                $product_id = (isset($item['variation_id']) && $item['variation_id'] > 0) ? $item['variation_id'] : $item['product_id'];
+                $product = wc_get_product($product_id);
+
+                if ( in_array($product->get_shipping_class(), [$this->shipping_class])) {
+                    // this item doesn't have the right class. return default availability
+                    $cart_has_free_shipping_item = true;
                 }
             }
-
             if ( $this->free_shipping_override === 'yes' && $cart_has_free_shipping_item ) {
                 return true;
             }
