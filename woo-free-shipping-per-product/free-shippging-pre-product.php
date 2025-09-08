@@ -1,11 +1,11 @@
 <?php
 /* @wordpress-plugin
- * Plugin Name:       WooCommerce Free Shipping Per Product
+ * Plugin Name:       Free Shipping Per Product for WooCommerce
  * Plugin URI:        https://wpruby.com/
  * Description:       Free Shipping for certain product
- * Version:           1.3.2
+ * Version:           1.3.3
  * WC requires at least: 3.0
- * WC tested up to: 9.4
+ * WC tested up to: 10.1
  * Author:            WPRuby
  * Author URI:        https://wpruby.com
  * Text Domain:       free-shipping-per-product-for-woocommerce
@@ -60,8 +60,7 @@ class WPRuby_Free_Shipping_Product
 
 			foreach ($package['contents'] as $item_key => $item) {
 				$product = $item['data'];
-				if (in_array($product->get_shipping_class(), ['free-shipping'])) {
-					// this item doesn't have the right class. return default availability
+				if ($this->has_free_shipping_class($product->get_shipping_class())) {
 					unset($packages[$package_key]['contents'][$item_key]);
 				}
 			}
@@ -71,6 +70,26 @@ class WPRuby_Free_Shipping_Product
 		return $packages;
 
 	}
+
+    private function has_free_shipping_class($product_shipping_class)
+    {
+        $base_slug = 'free-shipping';
+        if ( $product_shipping_class === $base_slug ) {
+            return true;
+        }
+
+        // If WPML is active, also match "<base>-xx" (two-letter language code).
+        if (
+            defined( 'ICL_SITEPRESS_VERSION' ) &&
+            strlen( $product_shipping_class ) === strlen( $base_slug ) + 3 &&
+            strpos( $product_shipping_class, $base_slug . '-' ) === 0
+        ) {
+            return true;
+        }
+
+        return false;
+
+    }
 
 	/**
 	 * @param $package

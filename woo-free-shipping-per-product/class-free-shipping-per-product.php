@@ -99,8 +99,23 @@ if (! class_exists('WC_Free_Shipping_Per_Product_Method')) :
                 $product_id = (isset($item['variation_id']) && $item['variation_id'] > 0) ? $item['variation_id'] : $item['product_id'];
                 $product = wc_get_product($product_id);
 
-                if ( in_array($product->get_shipping_class(), [$this->shipping_class])) {
-                    // this item doesn't have the right class. return default availability
+                $slug = $product->get_shipping_class();
+                $match = false;
+
+                // Always match the base slug exactly
+                if ( $slug === $this->shipping_class ) {
+                    $match = true;
+                }
+                // If WPML is active, also allow "-xx" variant
+                elseif (
+                        defined( 'ICL_SITEPRESS_VERSION' ) &&
+                        strlen( $slug ) === strlen( $this->shipping_class ) + 3 &&
+                        strpos( $slug, $this->shipping_class . '-' ) === 0
+                ) {
+                    $match = true;
+                }
+
+                if ( $match ) {
                     $items_with_free_shipping++;
                 }
             }
@@ -113,9 +128,9 @@ if (! class_exists('WC_Free_Shipping_Per_Product_Method')) :
                 return true;
             }
 
-
             return false;
         }
+
 
         /**
          * @param array $package

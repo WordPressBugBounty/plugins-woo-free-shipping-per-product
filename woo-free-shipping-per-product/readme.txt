@@ -1,13 +1,13 @@
-=== WooCommerce Free Shipping Per Product ===
+=== Free Shipping Per Product for WooCommerce ===
 Contributors: waseem_senjer,wprubyplugins
 Donate link: https://wpruby.com/
 Tags: woocommerce,shipping,shipping method, woocommerce extension, free shipping
 Requires at least: 4.0
-Tested up to: 6.7
-Stable tag: 1.3.2
+Tested up to: 6.8
+Stable tag: 1.3.3
 WC requires at least: 3.0
-WC tested up to: 9.4
-Requires PHP: 5.6
+WC tested up to: 10.1
+Requires PHP: 7.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -34,7 +34,7 @@ The plugin acts as a regular WooCommerce shipping method. For setting up the plu
 = Using The WordPress Dashboard =
 
 1. Navigate to the 'Add New' in the plugins dashboard
-2. Search for 'WooCommerce Free Shipping Per Product'
+2. Search for 'Free Shipping Per Product for WooCommerce'
 3. Click 'Install Now'
 4. Activate the plugin on the Plugin dashboard
 
@@ -71,6 +71,10 @@ The plugin acts as a regular WooCommerce shipping method. For setting up the plu
 * To make a product eligible for free shipping, you can create a shipping class and name it free-shipping then, assign the class to any product you need.
 
 == Changelog ==
+= 1.3.3 =
+* Declaring WordPress 6.8 support.
+* Declaring WooCommerce 10.1 support.
+
 = 1.3.2 =
 * Fixed: Offer free shipping for the entire cart when it contains at least one free shipping item.
 
